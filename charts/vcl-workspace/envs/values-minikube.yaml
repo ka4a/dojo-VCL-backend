@@ -1,0 +1,11 @@
+registry:
+serviceAccountName: dojo-vcl-workspace-sa
+namespace: default
+imagePullPolicy: Never
+environment: DEV
+
+rabbitMQ:
+  password: guest
+  username: guest
+  host: host.minikube.internal
+  port: 5672

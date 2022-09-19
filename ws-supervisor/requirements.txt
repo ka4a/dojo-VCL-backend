@@ -1,0 +1,5 @@
+aiohttp==3.8.1
+click==8.0.4
+pika==1.2.0
+pytz==2021.3
+kubernetes==21.7.0

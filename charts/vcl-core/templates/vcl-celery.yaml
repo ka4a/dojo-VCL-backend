@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: celery
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: celery
+  template:
+    metadata:
+      labels:
+        app: celery
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      containers:
+        - name: celery
+          image: {{ .Values.registry }}{{ .Values.celery.image }}:{{ .Values.imageTag }}
+{{- if eq $.Values.environment "DEV" }}
+          tty: true
+          stdin: true
+{{ end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: [{{ join "," .Values.celery.command }}]
+          env:
+            - name: ENVIRONMENT
+              value: "{{ .Values.environment | default "DEV" }}"
+            - name: PYTHONWARNINGS
+              value: '"ignore:Unverified HTTPS request"'
+            - name: DB
+              {{- if eq $.Values.environment "DEV" }}
+              value: "psql://{{ .Values.psql.username }}:{{ .Values.psql.password }}@{{ .Values.psql.host }}:{{ .Values.psql.port }}/{{ .Values.psql.database }}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: connection_string
+              {{- end }}
+            - name: REDIS_HOST
+              {{- if eq $.Values.environment "DEV" }}
+              value: {{ .Values.redis.host }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: host
+              {{- end }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: SECRET_KEY
+              value: {{ .Values.djangoSecret }}
+            - name: RABBITMQ_URL
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.host }},{{ .Values.rabbitMQ.port }},/"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: url
+              {{- end }}
+            - name: RABBITMQ_CREDENTIALS
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.username }},{{ .Values.rabbitMQ.password }}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: credentials
+              {{- end }}
+            - name: WORKSPACE_DEFAULT_VSCODE_PASSWORD
+              value: {{ .Values.workspace.defaultVscodePassword }}
+            - name: DOCKER_REGISTRY
+              value: "{{ .Values.registry }}"
+            - name: INIT_CONTAINER_TAG
+              value: {{ .Values.imageTag | default "latest" }}
+            - name: INGRESS_PROTOCOL
+              value: {{ .Values.ingressProtocol }}
+            - name: INGRESS_HOST
+              value: {{ .Values.ingressHost }}
+            - name: WORKSPACE_AUTH_BASE_URL
+              value: {{ .Values.workspace.authBaseUrl }}
+            - name: WORKSPACES_CLUSTER_NAME
+              value: {{ .Values.workspacesClusterName }}
+            - name: WORKSPACES_CLUSTER_TRAEFIK_NAMESPACE
+              value: {{ .Values.workspacesClusterTraefikNamespace }}
+            - name: WORKSPACES_CLUSTER_TRAEFIK_LABEL_VALUE
+              value: {{ .Values.workspacesClusterTraefikLabelValue }}
+            - name: GITHUB_ACCESS_TOKEN
+              value: {{ .Values.workspace.githubAccessToken }}
+            - name: WORKSPACES_SESSION_EXTENSION_PERIOD
+              value: {{ .Values.workspace.sessionExtensionPeriod | quote }}
+            - name: WORKSPACES_MAX_SESSION_DURATION
+              value: {{ .Values.workspace.maxSessionDuration | quote }}
+            - name: ENABLE_CELERY_PERIODIC_TASKS
+              value: {{ .Values.enablePeriodicTasks | quote }}
+          readinessProbe:
+            {{- toYaml .Values.celery.readiness | nindent 12 }}
+{{- if eq $.Values.environment "DEV" }}
+          volumeMounts:
+          - mountPath: {{ .Values.homeDir }}/vcl
+            name: host-volume
+          - mountPath: {{ .Values.homeDir }}/vcl-utils
+            name: utils-volume
+{{ end }}
+      serviceAccount: {{ .Values.serviceAccountName }}
+{{- if eq $.Values.environment "DEV" }}
+      volumes:
+      - name: host-volume
+        hostPath:
+          path: /vcl/vcl
+      - name: utils-volume
+        hostPath:
+          path: /vcl/vcl-utils
+{{ end }}

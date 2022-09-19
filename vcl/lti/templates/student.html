@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="pt-3 pr-5 pl-5">
+  <h3 class="display-4"> {{ assignment.name }} </h3>
+  <p class="text-left lead pt-2">
+      {{ workspace_user_data.name }}, you are about to start "{{ assignment.name }}" assignment. Once you click "Launch workspace", your coding environment will be launched in the browser. Instructions will be available. You can work on this assignment multiple time, but you can submit solutions for it only {{ remaining_attempts }} time{{ remaining_attempts|pluralize }}. After you submit a solution, you will not be able to launch the workspace until your solution is graded. In order to submit a solution, click "Submit solution" below. You can get back to this page anytime from the learning portal.
+  </p>
+  <div class="row pt-2">
+      <div class="col-sm-12">
+          <a class="btn btn-primary" target="_blank" href="{{ launch_page_url }}">Launch workspace</a>
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">Submit solution</button>
+      </div>
+  </div>
+
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>You have {{ remaining_attempts }} attempt{{ remaining_attempts|pluralize }} left. Are you sure to submit the solution?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <form action="{{ create_submission_url }}" method="post">
+                        <input class="btn btn-success" type="submit" value="Yes, submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

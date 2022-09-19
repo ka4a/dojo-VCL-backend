@@ -1,0 +1,10 @@
+registry: 259670477858.dkr.ecr.ap-northeast-1.amazonaws.com/
+serviceAccountName: vcl-ws-supervisor
+namespace: vcl-core
+imagePullPolicy: Always
+environment: PRODUCTION
+nodeSelector:
+  eks.amazonaws.com/nodegroup: application
+
+workspaceActivityCron:
+  schedule: "*/15 * * * *"

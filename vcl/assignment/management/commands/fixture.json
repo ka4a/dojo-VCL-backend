@@ -1,0 +1,409 @@
+[
+{
+  "model": "lti1p3_tool_config.ltitoolkey",
+  "pk": 1,
+  "fields": {
+    "name": "Test",
+    "private_key": "-----BEGIN RSA PRIVATE KEY-----\r\n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\r\n-----END RSA PRIVATE KEY-----",
+    "public_key": "-----BEGIN PUBLIC KEY-----\r\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuvEnCaUOy1l9gk3wjW3P\r\nib1dBc5g92+6rhvZZOsN1a77fdOqKsrjWG1lDu8kq2nL+wbAzR3DdEPVw/1WUwtr\r\n/Q1d5m+7S4ciXT63pENs1EPwWmeN33O0zkGx8I7vdiOTSVoywEyUZe6UyS+ujLfs\r\nRc2ImeLP5OHxpE1yULEDSiMLtSvgzEaMvf2AkVq5EL5nLYDWXZWXUnpiT/f7iK47\r\nMp2iQd4KYYG7YZ7lMMPCMBuhej7SOtZQ2FwaBjvZiXDZ172sQYBCiBAmOR3ofTL6\r\naD2+HUxYztVIPCkhyO84mQ7W4BFsOnKW4WRfEySHXd2hZkFMgcFNXY3dA6de519q\r\nlcrL0YYx8ZHpzNt0foEzUsgJd8uJMUVvzPZgExwcyIbv5jWYBg0ILgULo7ve7VXG\r\n5lMwasW/ch2zKp7tTILnDJwITMjF71h4fn4dMTun/7MWEtSl/iFiALnIL/4/YY71\r\n7cr4rmcG1424LyxJGRD9L9WjO8etAbPkiRFJUd5fmfqjHkO6fPxyWsMUAu8bfYdV\r\nRH7qN/erfGHmykmVGgH8AfK9GLT/cjN4GHA29bK9jMed6SWdrkygbQmlnsCAHrw0\r\nRA+QE0t617h3uTrSEr5vkbLz+KThVEBfH84qsweqcac/unKIZ0e2iRuyVnG4cbq8\r\nHUdio8gJ62D3wZ0UvVgr4a0CAwEAAQ==\r\n-----END PUBLIC KEY-----",
+    "public_jwk": "{\"e\": \"AQAB\", \"kid\": \"NtQYzsKs_TWLQ0p3bLmfM7fOwY0nEBVVH3z3Q-zJ06Y\", \"kty\": \"RSA\", \"n\": \"uvEnCaUOy1l9gk3wjW3Pib1dBc5g92-6rhvZZOsN1a77fdOqKsrjWG1lDu8kq2nL-wbAzR3DdEPVw_1WUwtr_Q1d5m-7S4ciXT63pENs1EPwWmeN33O0zkGx8I7vdiOTSVoywEyUZe6UyS-ujLfsRc2ImeLP5OHxpE1yULEDSiMLtSvgzEaMvf2AkVq5EL5nLYDWXZWXUnpiT_f7iK47Mp2iQd4KYYG7YZ7lMMPCMBuhej7SOtZQ2FwaBjvZiXDZ172sQYBCiBAmOR3ofTL6aD2-HUxYztVIPCkhyO84mQ7W4BFsOnKW4WRfEySHXd2hZkFMgcFNXY3dA6de519qlcrL0YYx8ZHpzNt0foEzUsgJd8uJMUVvzPZgExwcyIbv5jWYBg0ILgULo7ve7VXG5lMwasW_ch2zKp7tTILnDJwITMjF71h4fn4dMTun_7MWEtSl_iFiALnIL_4_YY717cr4rmcG1424LyxJGRD9L9WjO8etAbPkiRFJUd5fmfqjHkO6fPxyWsMUAu8bfYdVRH7qN_erfGHmykmVGgH8AfK9GLT_cjN4GHA29bK9jMed6SWdrkygbQmlnsCAHrw0RA-QE0t617h3uTrSEr5vkbLz-KThVEBfH84qsweqcac_unKIZ0e2iRuyVnG4cbq8HUdio8gJ62D3wZ0UvVgr4a0\", \"alg\": \"RS256\", \"use\": \"sig\"}"
+  }
+},
+{
+  "model": "lti1p3_tool_config.ltitool",
+  "pk": 1,
+  "fields": {
+    "title": "Test tool instructor launch",
+    "is_active": true,
+    "issuer": "https://example-mock.loca.lt",
+    "client_id": "24ddd4ef-086b-499a-8c3a-0ae46de38097",
+    "use_by_default": false,
+    "auth_login_url": "https://example-mock.loca.lt/api/lti_consumer/v1/launch/",
+    "auth_token_url": "https://example-mock.loca.lt/api/lti_consumer/v1/token/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "auth_audience": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set_url": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set": "",
+    "tool_key": 1,
+    "deployment_ids": "[\"1\"]"
+  }
+},
+{
+  "model": "lti1p3_tool_config.ltitool",
+  "pk": 3,
+  "fields": {
+    "title": "test tool student",
+    "is_active": true,
+    "issuer": "https://example-mock.loca.lt",
+    "client_id": "54ddd4ef-086b-499a-8c3a-0ae46de38097",
+    "use_by_default": false,
+    "auth_login_url": "https://example-mock.loca.lt/api/lti_consumer/v1/launch/",
+    "auth_token_url": "https://example-mock.loca.lt/api/lti_consumer/v1/token/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "auth_audience": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set_url": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set": "",
+    "tool_key": 1,
+    "deployment_ids": "[\"1\"]"
+  }
+},
+{
+  "model": "lti1p3_tool_config.ltitool",
+  "pk": 4,
+  "fields": {
+    "title": "test tool student graded",
+    "is_active": true,
+    "issuer": "https://example-mock.loca.lt",
+    "client_id": "34ddd4ef-086b-499a-8c3a-0ae46de38097",
+    "use_by_default": false,
+    "auth_login_url": "https://example-mock.loca.lt/api/lti_consumer/v1/launch/",
+    "auth_token_url": "https://example-mock.loca.lt/api/lti_consumer/v1/token/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "auth_audience": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set_url": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set": "",
+    "tool_key": 1,
+    "deployment_ids": "[\"1\"]"
+  }
+},
+{
+  "model": "assignment.assignment",
+  "pk": "29b10e77-57d3-4c6b-a1ed-4b8e61b07c4f",
+  "fields": {
+    "name": "TA",
+    "lti_configuration": null,
+    "max_attempts": 1,
+    "max_score": 100,
+    "code_repo": "https://github.com/leachim6/hello-world.git",
+    "tags": []
+  }
+},
+{
+  "model": "assignment.assignment",
+  "pk": "2e99e9e5-f235-483f-9ad8-a47645ee2322",
+  "fields": {
+    "name": "TA4",
+    "lti_configuration": 1,
+    "max_attempts": 1,
+    "max_score": 100,
+    "code_repo": "https://github.com/leachim6/hello-world.git",
+    "tags": []
+  }
+},
+{
+  "model": "assignment.assignment",
+  "pk": "301481f8-b2ae-41d6-acc0-51a7a657f5df",
+  "fields": {
+    "name": "Test assignment",
+    "lti_configuration": 4,
+    "max_attempts": 1,
+    "max_score": 100,
+    "code_repo": "https://github.com/leachim6/hello-world.git",
+    "tags": []
+  }
+},
+{
+  "model": "assignment.assignment",
+  "pk": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+  "fields": {
+    "name": "TA5",
+    "lti_configuration": 3,
+    "max_attempts": 1,
+    "max_score": 100,
+    "code_repo": "https://github.com/leachim6/hello-world.git",
+    "tags": []
+  }
+},
+{
+  "model": "assignment.submission",
+  "pk": "4b23570f-1f41-4220-bc5a-248936b86986",
+  "fields": {
+    "workspace_allocation": 19,
+    "line_item_id": "https://exp.dojoalpha.com/api/lti_consumer/v1/lti/12/lti-ags/19",
+    "resource_link_id": "block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "attempt_number": 1,
+    "status": "Grading"
+  }
+},
+{
+  "model": "assignment.submission",
+  "pk": "6b23570f-1f41-4220-bc5a-248936b86986",
+  "fields": {
+    "workspace_allocation": 23,
+    "line_item_id": "https://exp.dojoalpha.com/api/lti_consumer/v1/lti/12/lti-ags/20",
+    "resource_link_id": "block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "attempt_number": 1,
+    "status": "Passed"
+  }
+},
+{
+  "model": "assignment.workspaceconfiguration",
+  "pk": 1,
+  "fields": {
+    "assignment": "301481f8-b2ae-41d6-acc0-51a7a657f5df",
+    "docker_image": "codercom/code-server",
+    "number_gpus": 0,
+    "number_cpus": "0.25",
+    "amount_ram": "0.50",
+    "storage_size": 1
+  }
+},
+{
+  "model": "assignment.workspaceconfiguration",
+  "pk": 2,
+  "fields": {
+    "assignment": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "docker_image": "codercom/code-server",
+    "number_gpus": 0,
+    "number_cpus": "0.25",
+    "amount_ram": "0.50",
+    "storage_size": 1
+  }
+},
+{
+  "model": "assignment.workspaceconfiguration",
+  "pk": 3,
+  "fields": {
+    "assignment": "2e99e9e5-f235-483f-9ad8-a47645ee2322",
+    "docker_image": "codercom/code-server",
+    "number_gpus": 0,
+    "number_cpus": "0.25",
+    "amount_ram": "0.50",
+    "storage_size": 1
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 19,
+  "fields": {
+    "assignment": "301481f8-b2ae-41d6-acc0-51a7a657f5df",
+    "learner": "481b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "5462423a-0807-457c-b89f-d7d2bce99d10",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:30.542Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:10:32.162Z"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 20,
+  "fields": {
+    "assignment": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "learner": "281b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "41d3e3f3-c2cd-478b-900a-f46a2aa479f9",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:36:13.257Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:47:52.671Z"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 21,
+  "fields": {
+    "assignment": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "learner": "902b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "1a03ffc6-79cb-49ea-bb9e-17accb677d67",
+    "workspace_status": null,
+    "workspace_status_updated_at": null,
+    "debug": false,
+    "created_at": "2022-05-06T13:50:20.206Z"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 22,
+  "fields": {
+    "assignment": "2e99e9e5-f235-483f-9ad8-a47645ee2322",
+    "learner": "902b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "cbf8165e-1195-45c6-bc9a-c389c224b1cb",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:51.646Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:52:45.942Z"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 23,
+  "fields": {
+    "assignment": "2e99e9e5-f235-483f-9ad8-a47645ee2322",
+    "learner": "681b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "7462423a-0807-457c-b89f-d7d2bce99d10",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:30.542Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:10:32.162Z"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "081b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T12:32:29.684Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor\"]"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "281b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:36:05.925Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "481b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:59.359Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "681b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:59.359Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "781b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:59.359Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "902b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:45.013Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor\"]"
+  }
+},
+{
+  "model": "lti1p3_tool_config.ltitool",
+  "pk": 5,
+  "fields": {
+    "title": "test tool student rejected w/ no attempts left",
+    "is_active": true,
+    "issuer": "https://example-mock.loca.lt",
+    "client_id": "44ddd4ef-086b-499a-8c3a-0ae46de38097",
+    "use_by_default": false,
+    "auth_login_url": "https://example-mock.loca.lt/api/lti_consumer/v1/launch/",
+    "auth_token_url": "https://example-mock.loca.lt/api/lti_consumer/v1/token/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "auth_audience": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set_url": "https://example-mock.loca.lt/api/lti_consumer/v1/public_keysets/block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "key_set": "",
+    "tool_key": 1,
+    "deployment_ids": "[\"1\"]"
+  }
+},
+{
+  "model": "assignment.assignment",
+  "pk": "409df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+  "fields": {
+    "name": "TA5",
+    "lti_configuration": 5,
+    "max_attempts": 1,
+    "max_score": 100,
+    "code_repo": "https://github.com/leachim6/hello-world.git",
+    "tags": []
+  }
+},
+{
+  "model": "assignment.workspaceconfiguration",
+  "pk": 4,
+  "fields": {
+    "assignment": "409df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "docker_image": "codercom/code-server",
+    "number_gpus": 0,
+    "number_cpus": "0.25",
+    "amount_ram": "0.50",
+    "storage_size": 1
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "102b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:45.013Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 24,
+  "fields": {
+    "assignment": "409df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "learner": "102b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "7462423a-0807-457c-b89f-d7d2bce99d11",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:30.542Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:10:32.162Z"
+  }
+},
+{
+  "model": "assignment.submission",
+  "pk": "7b23570f-1f41-4220-bc5a-248936b86986",
+  "fields": {
+    "workspace_allocation": 24,
+    "line_item_id": "https://exp.dojoalpha.com/api/lti_consumer/v1/lti/12/lti-ags/20",
+    "resource_link_id": "block-v1:ExampleKK+1+2022+type@lti_consumer+block@61ee9873a1cf4dac8053494e2eead36e",
+    "attempt_number": 1,
+    "status": "Rejected"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "112b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:45.013Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 25,
+  "fields": {
+    "assignment": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "learner": "112b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "8062423a-0807-457c-b89f-d7d2bce99d11",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:30.542Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:10:32.162Z"
+  }
+},
+{
+  "model": "assignment.workspaceuser",
+  "pk": "122b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+  "fields": {
+    "last_access": "2022-05-06T17:35:45.013Z",
+    "roles": "[\"http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student\"]"
+  }
+},
+{
+  "model": "assignment.workspaceallocation",
+  "pk": 26,
+  "fields": {
+    "assignment": "e25df4c3-1eb9-4e8b-b6d2-368886f7bc43",
+    "learner": "122b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+    "volume": null,
+    "workspace_url_slug": "9062423a-0807-457c-b89f-d7d2bce99d11",
+    "workspace_status": null,
+    "workspace_status_updated_at": "2022-05-06T17:35:30.542Z",
+    "debug": false,
+    "created_at": "2022-05-06T13:10:32.162Z"
+  }
+}
+]

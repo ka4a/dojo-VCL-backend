@@ -1,0 +1,11 @@
+registry: 762006128434.dkr.ecr.ap-northeast-1.amazonaws.com/
+serviceAccountName: vcl-ws-supervisor
+namespace: vcl-core
+imagePullPolicy: Always
+environment: TESTING
+imageTag: latest
+nodeSelector:
+  eks.amazonaws.com/nodegroup: application
+
+workspaceActivityCron:
+  schedule: "*/15 * * * *"

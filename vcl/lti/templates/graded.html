@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Graded{% endblock %}
+
+{% block content %}
+<div class="pt-3 pr-5 pl-5">
+  <div class="container-fluid">
+    <div class="p-5">
+      <h2 class="col-12 display-5 mb-3 d-flex justify-content-center">
+        Success
+      </h2>
+      <p class="col-12 display-5 mb-3 d-flex justify-content-center">
+        The student submission has been graded successfully. You can close this tab now.
+      </p>
+      <table class="d-flex justify-content-center table table-hover">
+        <tbody>
+          <tr>
+            <td>Timestamp</td>
+            <td>{{ result.timestamp }}</td>
+          </tr>
+          <tr>
+            <td>Score Given</td>
+            <td>{{ result.scoreGiven }}</td>
+          </tr>
+          <tr>
+            <td>Maximum Score</td>
+            <td>{{ result.scoreMaximum }}</td>
+          </tr>
+          <tr>
+            <td>Comment</td>
+            <td>{{ result.comment }}</td>
+          </tr>
+          <tr>
+            <td>Activity Progress</td>
+            <td>{{ result.activityProgress }}</td>
+          </tr>
+          <tr>
+            <td>Grading Progress</td>
+            <td>{{ result.gradingProgress }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

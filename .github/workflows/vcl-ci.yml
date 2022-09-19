@@ -1,0 +1,294 @@
+name: "DCL CI Pipeline"
+
+on:
+  push:
+    branches:
+      - "**"
+env:
+  AWS_REGION: ap-northeast-1
+permissions:
+  id-token: write
+  contents: read    # This is required for actions/checkout  
+
+jobs:
+  lint:
+    name: "Flake8"
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Run flake8
+        run: |
+          flake8 . --config ./setup.cfg
+
+  build:
+    name: Build & Publish artifacts
+    needs: lint
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::762006128434:role/vcl-oidc-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push the image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_PREFIX: vcl
+          TAG: ${{ github.sha }}
+        run: |
+          echo "Building images"
+          docker build . -f ./vcl/Dockerfile -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_web:${TAG} \
+                                             -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_celery:${TAG} \
+                                             -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_beat:${TAG} \
+                                             -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_web:latest \
+                                             -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_celery:latest \
+                                             -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_beat:latest;
+          docker build . -f ./consumer/Dockerfile -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_consumer:${TAG} \
+                                                  -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_consumer:latest;
+          docker build . -f ./init-container/Dockerfile -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_init_container:${TAG} \
+                                                        -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_init_container:latest;
+          docker build . -f ./k8s-watcher/Dockerfile -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_watcher:${TAG} \
+                                                     -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_watcher:latest;
+          docker build . -f ./ws-supervisor/Dockerfile -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_ws_supervisor:${TAG} \
+                                                       -t ${ECR_REGISTRY}/${IMAGE_PREFIX}_ws_supervisor:latest;
+          echo "Pushing images to ECR..."
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_web;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_celery;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_beat;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_consumer;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_init_container;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_watcher;
+          docker push --all-tags ${ECR_REGISTRY}/${IMAGE_PREFIX}_ws_supervisor;
+
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Package and update Mock LTI Lambda
+        working-directory: ./mock-lti-consumer
+        env:
+          AWS_LAMBDA_NAME: vcl-mock-lti-test
+          AWS_LAMBDA_SOURCE_BUCKET: vcl-mock-lti-test-lambda-source
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install -r requirements.txt -t ./requirements
+          cd requirements
+          zip -r ../${AWS_LAMBDA_NAME}.zip .
+          cd ..
+          zip -g ${AWS_LAMBDA_NAME}.zip app.py private.key public.jwt.json public.key token.json membership.json
+          aws s3 cp ${AWS_LAMBDA_NAME}.zip s3://${AWS_LAMBDA_SOURCE_BUCKET}/${AWS_LAMBDA_NAME}.zip
+          aws lambda update-function-code --region ${AWS_REGION} --function-name ${AWS_LAMBDA_NAME} --s3-bucket ${AWS_LAMBDA_SOURCE_BUCKET} --s3-key ${AWS_LAMBDA_NAME}.zip --no-publish
+
+  deploy_testing:
+    name: "Deploy DCL Apps to TESTING env"
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      aws-role-to-assume: arn:aws:iam::762006128434:role/vcl-oidc-role
+      env-name: testing
+      env-short-name: test
+      imageTag: ${{ github.sha }}
+    secrets:
+      djangoSecret: ${{ secrets.DJANGO_SECRET_KEY }}
+      defaultVscodePassword: ${{ secrets.VSCODE_PASSWORD }}
+      ghAccessToken: ${{ secrets.GH_ACCESS_TOKEN }}
+
+  tests:
+    name: Tests
+    needs: [build,deploy_testing]
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/master'
+    env:
+      MOCK_LTI_CONSUMER_ADDRESS: https://dkk7vqva7ngc4axtqdjkj2jag40qlftv.lambda-url.ap-northeast-1.on.aws
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v1"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::762006128434:role/vcl-oidc-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Truncate db and upload fixture
+        id: remove_db_upload_fixtures
+        env:
+          NS: vcl-core
+          KUBECONFIG: kubeconfig_vcl-core-test
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name vcl-core-test --kubeconfig kubeconfig_vcl-core-test
+          make truncate-db
+          make load-e2e-fixture
+
+      - name: Executing tests
+        id: execute_tests
+        continue-on-error: true
+        env:
+          WEB_ADDRESS: https://testing.dojocodelab.com
+          KUBECONFIG: kubeconfig_vcl-workspaces-test
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name vcl-workspaces-test --kubeconfig kubeconfig_vcl-workspaces-test
+          make e2e-install-requirements
+          make e2e
+
+      - name: Purge RabbitMQ queue & Redis cache
+        id: purge_rmq_and_redis
+        env:
+          NS: vcl-core
+          KUBECONFIG: kubeconfig_vcl-core-test
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name vcl-core-test --kubeconfig kubeconfig_vcl-core-test
+          echo "=== Purging RMQ and Redis ==="
+          make purge-queues
+
+      - name: Output application logs
+        id: output_app_logs
+        env:
+          NS: vcl-core
+          KUBECONFIG: kubeconfig_vcl-core-test
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name vcl-core-test --kubeconfig kubeconfig_vcl-core-test
+          echo "=== Web App logs ==="
+          kubectl logs deploy/web --tail 1000 -n ${NS}
+          echo "=== Celery App logs ==="
+          kubectl logs deploy/celery --tail 1000 -n ${NS}
+
+      - name: Post-tests cleanup
+        if: ${{ steps.execute_tests.conclusion == 'success' }}
+        id: post_tests_cleanup
+        run: >
+          for volume in $(aws ec2 describe-volumes --filters Name=status,Values=available Name=tag:Cleanup,Values=true Name=tag:Env,Values=test --query 'Volumes[*].VolumeId' --output text);
+           do echo "Deleting EBS volume $volume..."; aws ec2 delete-volume --volume-id $volume; 
+          done
+
+      - name: "Fail the job"
+        if: ${{ steps.execute_tests.outcome != 'success' }}
+        run: |
+          echo "E2E tests have failed! Please, check the logs!"
+          exit 1
+
+# Temporary cleanup is disabled
+#      - name: Cleanup TESTING environment
+#        if: ${{ steps.execute_tests.conclusion == 'success' }}
+#        env:
+#          KUBECONFIG: kubeconfig_vcl
+#        run: |
+#          echo "Setting kubeconfig"
+#          aws eks update-kubeconfig --name vcl-core-test --alias vcl-core-test --kubeconfig kubeconfig_vcl
+#          aws eks update-kubeconfig --name vcl-workspaces-test --alias vcl-workspaces-test --kubeconfig kubeconfig_vcl
+#          echo "Uninstalling DCL Helm releases"
+#          helm uninstall vcl-test -n vcl-core --kube-context vcl-core-test
+#          helm uninstall vcl-test -n vcl-core --kube-context vcl-workspaces-test
+
+  deploy_staging:
+    name: "Deploy DCL Apps to STAGING env"
+    needs: [deploy_testing,tests]
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      aws-role-to-assume: arn:aws:iam::762006128434:role/vcl-oidc-role
+      env-name: staging
+      env-short-name: stg
+      imageTag: ${{ github.sha }}
+    secrets:
+      djangoSecret: ${{ secrets.DJANGO_SECRET_KEY }}
+      defaultVscodePassword: ${{ secrets.VSCODE_PASSWORD }}
+      ghAccessToken: ${{ secrets.GH_ACCESS_TOKEN }}
+
+  publish_prod_images:
+    name: "Publish production-ready Docker images"
+    needs: [build,deploy_staging]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::762006128434:role/vcl-oidc-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Strata Amazon ECR
+        id: login-ecr-strata
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull the images from Strata Amazon ECR
+        id: pull-images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-strata.outputs.registry }}
+          IMAGE_PREFIX: vcl
+        run: |
+          echo "Pulling images from Strata AWS ECR..."
+          for service in web celery beat consumer init_container watcher ws_supervisor; do
+            docker pull ${ECR_REGISTRY}/${IMAGE_PREFIX}_${service}:${TAG};
+            docker tag ${ECR_REGISTRY}/${IMAGE_PREFIX}_${service}:${TAG} ${IMAGE_PREFIX}_${service}:${TAG};
+          done
+          docker images
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::259670477858:role/vcl-oidc-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Woven Amazon ECR
+        id: login-ecr-woven
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Push images to Woven Amazon ECR
+        id: push-images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-woven.outputs.registry }}
+          IMAGE_PREFIX: vcl
+        run: |
+          echo "Pushing images to Woven AWS ECR..."
+          docker images
+          for service in web celery beat consumer init_container watcher ws_supervisor; do
+            docker tag ${IMAGE_PREFIX}_${service}:${TAG} ${ECR_REGISTRY}/${IMAGE_PREFIX}_${service}:${TAG};
+            docker push ${ECR_REGISTRY}/${IMAGE_PREFIX}_${service}:${TAG};
+          done
+
+  deploy_production:
+    name: "Deploy DCL Apps to PRODUCTION env"
+    needs: publish_prod_images
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      aws-role-to-assume: arn:aws:iam::259670477858:role/vcl-oidc-role
+      env-name: production
+      env-short-name: prod
+      imageTag: ${{ github.sha }}
+    secrets:
+      djangoSecret: ${{ secrets.DJANGO_SECRET_KEY }}
+      defaultVscodePassword: ${{ secrets.VSCODE_PASSWORD }}
+      ghAccessToken: ${{ secrets.GH_ACCESS_TOKEN }}

@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:12
+    restart: unless-stopped
+    container_name: vcl.db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: vcl_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - postgres_net
+
+  redis:
+    image: redis:6
+    restart: unless-stopped
+    container_name: vcl.redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - redis_net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    container_name: vcl.rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_log:/var/log/rabbitmq/
+    networks:
+        - rabbitmq_net
+
+volumes:
+    rabbitmq_data:
+    rabbitmq_log:
+    redis_data:
+    postgres_data:
+
+networks:
+  postgres_net:
+  redis_net:
+  rabbitmq_net:
+  minikube:
+    external: true
+    name: minikube

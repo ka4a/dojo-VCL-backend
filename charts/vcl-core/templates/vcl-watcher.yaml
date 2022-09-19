@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watcher
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: watcher
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: watcher
+  template:
+    metadata:
+      labels:
+        app: watcher
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      serviceAccount: {{ .Values.serviceAccountName }}
+      containers:
+        - name: watcher
+          image: "{{ .Values.registry }}{{ .Values.watcher.image }}:{{ .Values.imageTag }}"
+{{- if eq $.Values.environment "DEV" }}
+          tty: true
+          stdin: true
+{{ end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: [{{ join "," .Values.watcher.command }}]
+          readinessProbe:
+            {{- toYaml .Values.watcher.readiness | nindent 12 }}
+          env:
+            - name: ENVIRONMENT
+              value: {{ .Values.environment | default "DEV" }}
+            - name: PYTHONWARNINGS
+              value: '"ignore:Unverified HTTPS request"'
+            - name: REDIS_HOST
+              {{- if eq $.Values.environment "DEV" }}
+              value: {{ .Values.redis.host }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: host
+              {{- end }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: RABBITMQ_URL
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.host }},{{ .Values.rabbitMQ.port }},/"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: url
+              {{- end }}
+            - name: RABBITMQ_CREDENTIALS
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.username }},{{ .Values.rabbitMQ.password }}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: credentials
+              {{- end }}
+            - name: WORKSPACES_CLUSTER_NAME
+              value: {{ .Values.workspacesClusterName }}
+{{- if eq $.Values.environment "DEV" }}
+          volumeMounts:
+            - mountPath: {{ .Values.homeDir }}/k8s-watcher
+              name: host-volume
+            - mountPath: {{ .Values.homeDir }}/vcl-utils
+              name: utils-volume
+      volumes:
+        - name: host-volume
+          hostPath:
+            path: /vcl/k8s-watcher
+        - name: utils-volume
+          hostPath:
+            path: /vcl/vcl-utils
+{{ end }}

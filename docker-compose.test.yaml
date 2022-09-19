@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  mock_lti_consumer:
+    build:
+      context: ./mock-lti-consumer/
+      dockerfile: Dockerfile
+    container_name: vcl.test.mock_lti_consumer
+    tty: true
+    stdin_open: true
+    environment:
+      WEB_ADDRESS: ${WEB_ADDRESS}
+      MOCK_ADDRESS: ${MOCK_LTI_CONSUMER_ADDRESS}
+      MOCK_LTI_CONSUMER_PORT: "8080"
+      FLASK_APP: app.py
+      FLASK_ENV: development
+    ports:
+      - 8080:8080
+    volumes:
+      - ./mock-lti-consumer/:/mock-lti-consumer
+
+  test_db:
+    image: postgres:12
+    restart: unless-stopped
+    container_name: vcl.test.db
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: vcl_db
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
+  test_redis:
+    image: redis:6
+    restart: unless-stopped
+    container_name: vcl.test.redis
+    ports:
+      - 6380:6379
+    volumes:
+      - test_redis_data:/data
+
+  test_rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    container_name: vcl.test.rabbitmq
+    ports:
+        - 5673:5672
+        - 15673:15672
+    volumes:
+      - test_rabbitmq_data:/var/lib/rabbitmq/
+      - test_rabbitmq_log:/var/log/rabbitmq/
+
+volumes:
+    test_rabbitmq_data:
+    test_rabbitmq_log:
+    test_redis_data:
+    test_postgres_data:
+
+networks:
+  minikube:
+    external: true
+    name: minikube

@@ -1,0 +1,42 @@
+registry: 259670477858.dkr.ecr.ap-northeast-1.amazonaws.com/
+serviceAccountName: vcl-core
+namespace: vcl-core
+imagePullPolicy: Always
+environment: PRODUCTION
+ingressProtocol: https
+ingressHost: dojocodelab.com
+workspacesClusterName: vcl-workspaces-prod
+workspacesClusterTraefikNamespace: vcl-system
+workspacesClusterTraefikLabelValue: traefik
+nodeSelector:
+  eks.amazonaws.com/nodegroup: application
+
+web:
+  command:
+    [
+      "scripts/entrypoint.sh",
+      "gunicorn",
+      "vcl.wsgi",
+      "--bind",
+      "0.0.0.0:8000",
+      "--worker-class",
+      "gevent",
+      "--workers",
+      "'2'",
+      "--timeout",
+      "'30'",
+      "--log-level",
+      "info",
+    ]
+
+celery:
+  command: ["scripts/worker.sh"]
+
+beat:
+  command: ["scripts/beat.sh"]
+
+workspace:
+  authBaseUrl: "https://dojocodelab.com/"
+
+traefik:
+  enabled: False

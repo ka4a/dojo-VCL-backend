@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vcl-migrations
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    "helm.sh/hook": pre-upgrade,pre-install
+spec:
+  template:
+    metadata:
+      name: vcl-migrations
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pre-upgrade-migrations-job
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        image: {{ .Values.registry }}{{ .Values.web.image }}:{{ .Values.imageTag }}
+        command: ["python", "manage.py", "migrate"]
+        env:
+          - name: ENVIRONMENT
+            value: "{{ .Values.environment | default "DEV" }}"
+          - name: PYTHONWARNINGS
+            value: '"ignore:Unverified HTTPS request"'
+          - name: DB
+            {{- if eq $.Values.environment "DEV" }}
+            value: "psql://{{ .Values.psql.username }}:{{ .Values.psql.password }}@{{ .Values.psql.host }}:{{ .Values.psql.port }}/{{ .Values.psql.database }}"
+            {{- else }}
+            valueFrom:
+              secretKeyRef:
+                name: db
+                key: connection_string
+            {{- end }}
+          - name: ALLOWED_HOSTS
+            value: "*"
+          - name: SECRET_KEY
+            value: {{ .Values.djangoSecret }}
+          - name: DOCKER_REGISTRY
+            value: "{{ .Values.registry }}"
+          - name: RABBITMQ_URL
+            {{- if eq $.Values.environment "DEV" }}
+            value: "{{ .Values.rabbitMQ.host }},{{ .Values.rabbitMQ.port }},/"
+            {{- else }}
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: url
+          {{- end }}
+          - name: RABBITMQ_CREDENTIALS
+            {{- if eq $.Values.environment "DEV" }}
+            value: "{{ .Values.rabbitMQ.username }},{{ .Values.rabbitMQ.password }}"
+            {{- else }}
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: credentials
+            {{- end }}

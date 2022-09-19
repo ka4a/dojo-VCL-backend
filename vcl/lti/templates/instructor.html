@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Review Launch{% endblock %}
+
+{% block inline_css %}
+<style>
+body {
+    background: #dee2e6 !important;
+}
+
+.content-box {
+    background: #ffffff !important;
+    margin-top: 5%;
+    border-radius: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-around">
+      <div class="col-lg-7 col-sm-12 col-md-10 content-box">
+        <div class="row mt-3">
+            <h1 class="col-12"> Review Launch </h1>
+            <p class="col-12">Instructor ID: <b>{{ user_id }}</b>
+            <!-- remove student name and email to avoid instructor biasness -->
+            <!--
+            <div class="col-12 mb-3">
+                <p><b class="mr-5">Name: </b>{% if workspace_user_data.name %} {{ workspace_user_data.name }}{% endif %}</p>
+                <p><b class="mr-5">Email: </b>{% if workspace_user_data.email %} {{ workspace_user_data.email }}{% endif %}</p>
+            </div>
+            -->
+        </div>
+        <div class="row mb-3">
+            <h3 class="col-12 display-5 mb-3">Assignment Details</h2>
+            <p class="col-12 mb-3"> <b class="mr-1">Title: </b> {{ assignment_name }}</p>
+            <div class="col-12 mb-3">
+                <a class="btn btn-primary" target="_blank" href="{{ launch_page_url }}">Launch workspace</a>
+        	</div>
+        </div>
+        {% if score_submission_url %}
+        <div class="row mb-3">
+            <h3 class="col-12 display-5 mb-3">Grade Submission</h2>
+            <form class="col-12 needs-validation" action="{{ score_submission_url }}" method="post" novalidate>
+
+                <div class="form-group">
+                    <label class="col-form-label" for="scoreInput">Score</label>
+                    <input type="number" name="score" id="scoreInput" class="form-control" required
+                        min="0" max="100"
+                    />
+                    <div class="invalid-feedback">
+                        Please provide a valid score.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-form-label" for="commentTextArea" >Comment</label>
+                    <textarea required class="form-control" name="comment" id="commentTextArea" rows="3"></textarea>
+                    <div class="invalid-feedback">
+                        Comments section cannot be blank.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input name="reject" class="form-check-input" style="margin-top: 12px" type="checkbox" id="rejectAction">
+                        <label class="form-check-label col-form-label" for="rejectAction">
+                            Reject
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">Grade</button>
+                </div>
+
+                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>You are about to submit a score for the learner submission.</p>
+                                <p>Rejecting the submission will require the learner to resubmit a solution. If you do not reject the submission, the current score will be final, as the learner will not be able to update or resubmit their work.</p>
+                                <p>Are you sure to submit the score for the sutudent submission?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                <input type="submit" value="Confirm" class="btn btn-success">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!--
+        <div class="row mb-3">
+            <h3 class="col-12 display-5 mb-3">Previous Scores</h2>
+            {% for line_item in line_items%}
+            <div class="col-12 row">
+                <span class="col-4 lead">Label: {{ line_item.label }}</span>
+                <span class="col-4 lead">Tag: {{ line_item.tag }}</span>
+                <span class="col-4 lead">Status:
+                    {% if line_item.status == "Grading" %}
+                    <span class="badge badge-warning">{{ line_item.status }}</span>
+                    {% elif line_item.status == "Rejected" %}
+                    <span class="badge badge-danger">{{ line_item.status }}</span>
+                    {% elif line_item.status == "Passed" %}
+                    <span class="badge badge-success">{{ line_item.status }}</span>
+                    {% endif %}
+                </span>
+                <div class="col-12 mt-3">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Score Obtained</th>
+                                <th scope="col">Maximum Score</th>
+                                <th scope="col">Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grade in line_item.grades %}
+                                <tr>
+                                    <td>{{ grade.resultScore }}</td>
+                                    <td>{{ grade.resultMaximum }}</td>
+                                    <td>{{ grade.comment|default:"---" }}</td>
+                                </tr>
+                            {% empty %}
+                                <p>No grades.</p>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% empty %}
+                <p>No LineItems.</p>
+            {% endfor %}
+        </div>
+        -->
+	  </div>
+    </div>
+{% endblock %}
+
+{% block inline_js %}
+<script>
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    // Fetch forms where we want to apply custom
+    // validations
+    var forms = $('.needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          $('#confirmationModal').modal('hide');
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
+{% endblock %}

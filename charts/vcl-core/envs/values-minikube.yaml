@@ -1,0 +1,54 @@
+registry:
+serviceAccountName: dojo-vcl-sa
+namespace: default
+imagePullPolicy: Never
+djangoSecret: django-insecure-br!^n*j0ki8c_2(tsvh84-6x329eyw2kqr-nf44%^+53t&-z*+
+environment: DEV
+ingressHost: localhost
+imageTag: latest
+
+redis:
+  host: host.minikube.internal
+  port: 6379
+
+psql:
+  username: devuser
+  password: devpass
+  host: host.minikube.internal
+  port: 5432
+  database: vcl_db
+
+rabbitMQ:
+  password: guest
+  username: guest
+  host: host.minikube.internal
+  port: 5672
+
+workspace:
+  defaultVscodePassword: "admin"
+  authBaseUrl: "http://web.default:8080/"
+
+traefik:
+  enabled: True
+  deployment:
+    # This replica count won't be used when
+    # autoscaling is enabled.
+    replicas: 1
+  logs:
+    general:
+      level: INFO
+    access:
+      enabled: True
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 10
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 60

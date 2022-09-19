@@ -1,0 +1,43 @@
+registry: 762006128434.dkr.ecr.ap-northeast-1.amazonaws.com/
+serviceAccountName: vcl-core
+namespace: vcl-core
+imagePullPolicy: Always
+environment: STAGING
+ingressProtocol: https
+ingressHost: staging.dojocodelab.com
+workspacesClusterName: vcl-workspaces-stg
+workspacesClusterTraefikNamespace: vcl-system
+workspacesClusterTraefikLabelValue: traefik
+nodeSelector:
+  eks.amazonaws.com/nodegroup: application
+imageTag: latest
+
+web:
+  command:
+    [
+      "scripts/entrypoint.sh",
+      "gunicorn",
+      "vcl.wsgi",
+      "--bind",
+      "0.0.0.0:8000",
+      "--worker-class",
+      "gevent",
+      "--workers",
+      "'2'",
+      "--timeout",
+      "'30'",
+      "--log-level",
+      "info",
+    ]
+
+celery:
+  command: ["scripts/worker.sh"]
+
+beat:
+  command: ["scripts/beat.sh"]
+
+workspace:
+  authBaseUrl: "https://staging.dojocodelab.com/"
+
+traefik:
+  enabled: False

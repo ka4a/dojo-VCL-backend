@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      containers:
+        - name: web
+          image: {{ .Values.registry }}{{ .Values.web.image }}:{{ .Values.imageTag }}
+{{- if eq $.Values.environment "DEV" }}
+          tty: true
+          stdin: true
+{{ end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: [{{ join "," .Values.web.command }}]
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ENVIRONMENT
+              value: "{{ .Values.environment | default "DEV" }}"
+            - name: PYTHONWARNINGS
+              value: '"ignore:Unverified HTTPS request"'
+            - name: DB
+              {{- if eq $.Values.environment "DEV" }}
+              value: "psql://{{ .Values.psql.username }}:{{ .Values.psql.password }}@{{ .Values.psql.host }}:{{ .Values.psql.port }}/{{ .Values.psql.database }}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: connection_string
+              {{- end }}
+            - name: REDIS_HOST
+              {{- if eq $.Values.environment "DEV" }}
+              value: {{ .Values.redis.host }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: host
+              {{- end }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: SECRET_KEY
+              value: {{ .Values.djangoSecret }}
+            - name: RABBITMQ_URL
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.host }},{{ .Values.rabbitMQ.port }},/"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: url
+              {{- end }}
+            - name: RABBITMQ_CREDENTIALS
+              {{- if eq $.Values.environment "DEV" }}
+              value: "{{ .Values.rabbitMQ.username }},{{ .Values.rabbitMQ.password }}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: credentials
+              {{- end }}
+            - name: WORKSPACE_DEFAULT_VSCODE_PASSWORD
+              value: "{{ .Values.workspace.defaultVscodePassword }}"
+            - name: DOCKER_REGISTRY
+              value: "{{ .Values.registry }}"
+            - name: INIT_CONTAINER_TAG
+              value: {{ .Values.imageTag | default "latest" }}
+            - name: INGRESS_PROTOCOL
+              value: {{ .Values.ingressProtocol }}
+            - name: INGRESS_HOST
+              value: {{ .Values.ingressHost }}
+            - name: WORKSPACE_AUTH_BASE_URL
+              value: {{ .Values.workspace.authBaseUrl }}
+            - name: WORKSPACES_CLUSTER_NAME
+              value: {{ .Values.workspacesClusterName }}
+            - name: WORKSPACES_CLUSTER_TRAEFIK_NAMESPACE
+              value: {{ .Values.workspacesClusterTraefikNamespace }}
+            - name: WORKSPACES_CLUSTER_TRAEFIK_LABEL_VALUE
+              value: {{ .Values.workspacesClusterTraefikLabelValue }}
+            - name: GITHUB_ACCESS_TOKEN
+              value: {{ .Values.workspace.githubAccessToken }}
+            - name: WORKSPACES_SESSION_EXTENSION_PERIOD
+              value: {{ .Values.workspace.sessionExtensionPeriod | quote }}
+            - name: WORKSPACES_MAX_SESSION_DURATION
+              value: {{ .Values.workspace.maxSessionDuration | quote }}
+            - name: ENABLE_CELERY_PERIODIC_TASKS
+              value: {{ .Values.enablePeriodicTasks | quote }}
+          {{ .Values.web.initialDelaySeconds }}
+          readinessProbe:
+            {{- toYaml .Values.web.readiness | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.web.liveness | nindent 12 }}
+{{- if eq $.Values.environment "DEV" }}
+          volumeMounts:
+          - mountPath: {{ .Values.homeDir }}/vcl
+            name: host-volume
+          - mountPath: {{ .Values.homeDir }}/vcl-utils
+            name: utils-volume
+{{ end }}
+      serviceAccount: {{ .Values.serviceAccountName }}
+{{- if eq $.Values.environment "DEV" }}
+      volumes:
+      - name: host-volume
+        hostPath:
+          path: /vcl/vcl
+      - name: utils-volume
+        hostPath:
+          path: /vcl/vcl-utils
+{{ end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8000
+  selector:
+    app: web
+
+---
+{{- if eq $.Values.environment "DEV" }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: web-ingress
+  namespace: {{ .Values.namespace }}
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    # Web requests path prefixes must not be among workspace path prefixes
+    # to avoid conflicts. These include `/workspace`, `/vs/workbench`.
+    match: Host(`{{ .Values.ingressHost }}`) && !PathPrefix(`/workspace`) && !PathPrefix(`/vs/workbench`)
+    services:
+    - name: web
+      port: http
+{{- end }}

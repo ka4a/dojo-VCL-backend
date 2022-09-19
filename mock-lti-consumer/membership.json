@@ -1,0 +1,64 @@
+{
+    "id": "https://exp.dojoalpha.com/api/lti_consumer/v1/lti/12/memberships",
+    "context": {
+        "id": "course-v1:ExampleKK+1+2022"
+    },
+    "members": [
+        {
+            "status": "Active",
+            "user_id": "902b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor"
+            ],
+            "name": "Admin1"
+        },
+        {
+            "status": "Active",
+            "user_id": "281b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student1"
+        },
+        {
+            "status": "Active",
+            "user_id": "481b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student2"
+        },
+        {
+            "status": "Active",
+            "user_id": "681b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student3"
+        },
+        {
+            "status": "Active",
+            "user_id": "102b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student4"
+        },
+        {
+            "status": "Active",
+            "user_id": "112b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student5"
+        },
+        {
+            "status": "Active",
+            "user_id": "122b04c6-ab9d-46fb-b05a-7dc46abb1f2d",
+            "roles": [
+                "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"
+            ],
+            "name": "Student6"
+        }
+    ]
+}

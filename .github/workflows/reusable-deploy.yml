@@ -1,0 +1,97 @@
+name: Reusable workflow for deploying VCL components
+
+on:
+  workflow_call:
+    inputs:
+      env-name:
+        required: true
+        type: string
+      env-short-name:
+        required: true
+        type: string
+      imageTag:
+        required: true
+        type: string
+      aws-region:
+        default: 'ap-northeast-1'
+        required: false
+        type: string
+      aws-role-to-assume:
+        required: true
+        type: string
+
+    secrets:
+      djangoSecret:
+        required: true
+      defaultVscodePassword:
+        required: true
+      ghAccessToken:
+        required: true
+
+jobs:
+  deploy:
+    name: "Deploy VCL Apps"
+    runs-on: "ubuntu-20.04"
+    env:
+      ENV_NAME: ${{ inputs.env-name }}
+      ENV_SHORT_NAME: ${{ inputs.env-short-name }}
+      AWS_REGION: ${{ inputs.aws-region }}
+      HELM_TIMEOUT: 10m
+      K8S_NAMESPACE: vcl-core
+      KUBECTL_VERSION: "v1.23.6"
+    permissions:
+      id-token: write
+      contents: read    # This is required for actions/checkout  
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v1"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ inputs.aws-role-to-assume }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: "Install kubectl"
+        uses: azure/setup-kubectl@v2.1
+        with:
+          version: ${{ env.KUBECTL_VERSION }}
+        id: install_kubectl
+
+      - name: "Deploy VCL-CORE"
+        continue-on-error: true
+        id: deploy_vcl_core
+        env:
+          EKS_CLUSTER_NAME: vcl-core-${{ env.ENV_SHORT_NAME }}
+          KUBECONFIG: kubeconfig_vcl-core-${{ env.ENV_SHORT_NAME }}
+          HELM_CHART_PATH: ./charts/vcl-core
+          HELM_RELEASE_NAME: vcl-${{ env.ENV_SHORT_NAME }}
+          HELM_VALUES: djangoSecret=${{ secrets.djangoSecret }},workspace.defaultVscodePassword=${{ secrets.defaultVscodePassword }},workspace.githubAccessToken=${{ secrets.ghAccessToken }},imageTag=${{ github.sha }}
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME} --kubeconfig ${KUBECONFIG}
+          helm upgrade --wait --atomic --install --timeout ${HELM_TIMEOUT} -f ${HELM_CHART_PATH}/envs/values-${{ env.ENV_NAME }}.yaml -n ${K8S_NAMESPACE} --set ${HELM_VALUES} ${HELM_RELEASE_NAME} ${HELM_CHART_PATH}
+
+      - name: "Migrations Logs"
+        if: ${{ steps.deploy_vcl_core.conclusion == 'success' }}
+        env:
+          KUBECONFIG: kubeconfig_vcl-core-${{ env.ENV_SHORT_NAME }}
+        run: |
+          kubectl -n ${K8S_NAMESPACE} logs job.batch/vcl-migrations
+
+      - name: "Fail the job"
+        if: ${{ steps.deploy_vcl_core.outcome != 'success' }}
+        run: |
+          echo "VCL-CORE deployment has failed! Please check the logs!"
+          exit 1
+
+      - name: "Deploy VCL-WORKSPACE"
+        if: ${{ steps.deploy_vcl_core.outcome == 'success' }}
+        env:
+          EKS_CLUSTER_NAME: vcl-workspaces-${{ env.ENV_SHORT_NAME }}
+          KUBECONFIG: kubeconfig_vcl-workspaces-${{ env.ENV_SHORT_NAME }}
+          HELM_CHART_PATH: ./charts/vcl-workspace
+          HELM_RELEASE_NAME: vcl-${{ env.ENV_SHORT_NAME }}
+          HELM_VALUES: imageTag=${{ github.sha }}
+        run: |
+          aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME} --kubeconfig ${KUBECONFIG}
+          helm upgrade --wait --atomic --install --timeout ${HELM_TIMEOUT} -f ${HELM_CHART_PATH}/envs/values-${ENV_NAME}.yaml -n ${K8S_NAMESPACE} --set ${HELM_VALUES} ${HELM_RELEASE_NAME} ${HELM_CHART_PATH}

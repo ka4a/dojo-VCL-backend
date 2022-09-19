@@ -1,0 +1,107 @@
+registry:
+serviceAccountName: dojo-vcl
+namespace: default
+imagePullPolicy: Always
+djangoSecret: django-insecure-br!^n*j0ki8c_2(tsvh84-6x329eyw2kqr-nf44%^+53t&-z*+
+ingressProtocol: http
+ingressHost: localhost
+imageTag: latest
+enablePeriodicTasks: 1
+
+homeDir: "/var/www"
+securityContext:
+  runAsUser: 33  # www-data
+  runAsGroup: 33  # www-data
+
+web:
+  image: vcl_web
+  command:
+    [
+      "scripts/minikube/entrypoint.sh",
+      "python",
+      "manage.py",
+      "runserver",
+      "0.0.0.0:8000",
+    ]
+  readiness:
+    httpGet:
+      path: /readiness
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 2
+  liveness:
+    httpGet:
+      path: /healthz
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 2
+
+celery:
+  image: vcl_celery
+  command: ["scripts/minikube/worker.sh"]
+  readiness:
+    exec:
+      command: ["python", "manage.py", "check_readiness"]
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+beat:
+  image: vcl_beat
+  command: ["scripts/minikube/beat.sh"]
+  readiness:
+    exec:
+      command: ["python", "manage.py", "check_readiness"]
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+consumer:
+  image: vcl_consumer
+  command: ["python", "run.py", "start-consumer"]
+  readiness:
+    exec:
+      command: ["python", "run.py", "check-readiness"]
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+  queueName: dcl-queue
+
+watcher:
+  image: vcl_watcher
+  command: ["python", "run.py", "start-watcher"]
+  readiness:
+    exec:
+      command: ["python", "run.py", "check-readiness"]
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 8
+
+
+redis:
+  host:
+  port: 6379
+
+psql:
+  username: vcluser
+  password:
+  host:
+  port: 5432
+  database: vcl_dev
+
+# Live envs don't use this
+rabbitMQ:
+  password:
+  username: mq_broker
+  host:
+  port: 5671
+
+workspace:
+  defaultVscodePassword: ""
+  sessionExtensionPeriod: 1  # in number of hours
+  maxSessionDuration: 6  # in number of hours
+  authBaseUrl: "http://auth.example.local"

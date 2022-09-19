@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: workspaces-activity
+    namespace: {{ .Values.namespace }}
+spec:
+  schedule: {{ .Values.workspaceActivityCron.schedule | quote }}
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: workspaces-activity
+        spec:
+          securityContext:
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+          restartPolicy: Never
+          serviceAccount: {{ .Values.serviceAccountName }}
+          containers:
+            - name: workspace-job
+              imagePullPolicy: {{ .Values.imagePullPolicy }}
+              image: "{{ .Values.registry }}{{ .Values.workspaceActivityCron.image }}:{{ .Values.imageTag }}"
+{{- if eq $.Values.environment "DEV" }}
+              tty: true
+              stdin: true
+{{ end }}
+              command: [{{ join "," .Values.workspaceActivityCron.command }}]
+              env:
+                - name: ENVIRONMENT
+                  value: {{ .Values.environment | default "DEV" }}
+                - name: PYTHONWARNINGS
+                  value: '"ignore:Unverified HTTPS request"'
+                - name: RABBITMQ_URL
+                  {{- if eq $.Values.environment "DEV" }}
+                  value: "{{ .Values.rabbitMQ.host }},{{ .Values.rabbitMQ.port }},/"
+                  {{- else }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: rabbitmq
+                      key: url
+                  {{- end }}
+                - name: RABBITMQ_CREDENTIALS
+                  {{- if eq $.Values.environment "DEV" }}
+                  value: "{{ .Values.rabbitMQ.username }},{{ .Values.rabbitMQ.password }}"
+                  {{- else }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: rabbitmq
+                      key: credentials
+                  {{- end }}
+{{- if eq $.Values.environment "DEV" }}
+              volumeMounts:
+                - mountPath: {{ .Values.homeDir }}/ws-supervisor
+                  name: host-volume
+                - mountPath: {{ .Values.homeDir }}/vcl-utils
+                  name: utils-volume
+          volumes:
+            - name: host-volume
+              hostPath:
+                path: /vcl/ws-supervisor
+            - name: utils-volume
+              hostPath:
+                path: /vcl/vcl-utils
+{{ end }}

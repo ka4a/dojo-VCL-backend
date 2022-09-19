@@ -1,0 +1,68 @@
+registry:
+serviceAccountName: dojo-test-vcl-sa
+namespace: test
+imagePullPolicy: Never
+djangoSecret: django-insecure-br!^n*j0ki8c_2(tsvh84-6x329eyw2kqr-nf44%^+53t&-z*+
+environment: DEV
+ingressHost: localhost
+imageTag: latest
+enablePeriodicTasks: 0
+
+web:
+  readiness:
+    initialDelaySeconds: 1
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+  liveness:
+    initialDelaySeconds: 5
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+
+consumer:
+  readiness:
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+
+celery:
+  readiness:
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+
+beat:
+  readiness:
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+
+watcher:
+  readiness:
+    periodSeconds: 20
+    timeoutSeconds: 15
+    failureThreshold: 2
+
+redis:
+  host: host.minikube.internal
+  port: 6380
+
+psql:
+  username: devuser
+  password: devpass
+  host: host.minikube.internal
+  port: 5433
+  database: vcl_db
+
+rabbitMQ:
+  password: guest
+  username: guest
+  host: host.minikube.internal
+  port: 5673
+
+workspace:
+  authBaseUrl: "http://web.test:8080/"
+
+traefik:
+  enabled: True

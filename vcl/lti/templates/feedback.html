@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="pt-3 pr-5 pl-5">
+    <div class="alert alert-warning" role="alert">
+        <h4 class="d-flex justify-content-center lead"> {{message}} </h4>
+    </div>
+    {% if extra_info %}
+    <div class="alert alert-danger" role="alert">
+        <pre>
+            {{ extra_info }}
+        </pre>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

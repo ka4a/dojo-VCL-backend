@@ -1,0 +1,21 @@
+registry:
+serviceAccountName: dojo-vcl
+namespace: default
+imagePullPolicy: Always
+imageTag: latest
+
+homeDir: "/var/www"
+securityContext:
+  runAsUser: 33  # www-data
+  runAsGroup: 33  # www-data
+
+workspaceActivityCron:
+  image: vcl_ws_supervisor
+  command: ["python", "supervisor.py", "run-workspaces-activity-cron"]
+  schedule: "*/15 * * * *"
+
+rabbitMQ:
+  password:
+  username: mq_broker
+  host:
+  port: 5671
